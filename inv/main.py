@@ -1,45 +1,65 @@
+
 import streamlit as st
-cols=st.columns([0.2,5,0.2])
-with cols[1]:
-    st.title('SUPPLIER MANAGEMENT')
-    cols2=st.columns([5,5])
-    with cols2[0]:
-        is_clicked_add=st.button("ADD SUPPLIERS",use_container_width=True,type="primary")
-    if is_clicked_add:   
-        # add_page=st.Page("add.py")
-        # add_nav=st.navigation([add_page],expanded=True)
-        # add_nav.run()
-        st.switch_page("pages/add.py")
-    with cols2[1]:
-        is_clicked_show=st.button("  SHOW  SUPPLIERS",use_container_width=True,type="primary")
-        if is_clicked_show:
-            st.switch_page("pages/show.py")
+import requests
+# Hide sidebar
 
-# import streamlit as st
 
-# # Hide sidebar
-# st.markdown("""
-#     <style>
-#     [data-testid="stSidebar"] { display: none; }
-#     </style>
-# """, unsafe_allow_html=True)
 
-# # Initialize page state
-# if "page" not in st.session_state:
-#     st.session_state.page = "home"
+# Initialize page state
+if "page" not in st.session_state:
+    st.session_state.page = "home"
 
-# # Navigation buttons
-# def navigate(page_name):
-#     st.session_state.page = page_name
+# Navigation buttons
+def navigate(page_name):
+    st.session_state.page = page_name
+    st.rerun()
 
-# # Home page
-# if st.session_state.page == "home":
-#     st.title("🏠 Home Page")
-#     if st.button("Go to Add Page"):
-#         navigate("add")
+# Home page
+if st.session_state.page == "home":
+    st.title(" Home Page")
+    if st.button("Go to Add Page"):
+        navigate("add")
+    if st.button("Go to Show Page"):
+        navigate("show")
 
-# # Add page
-# elif st.session_state.page == "add":
-#     st.title("➕ Add Page")
-#     if st.button("Back to Home"):
-#         navigate("home")
+#show page
+elif st.session_state.page=="show":
+ 
+              
+
+    if st.button("GO to Home page"):
+        navigate("home")
+    
+
+# Add page
+elif st.session_state.page == "add":
+    if 'sup_name' not in st.session_state:
+        st.session_state.sup_name = ""
+    if 'sup_age' not in st.session_state:
+        st.session_state.sup_age= ""
+    if 'sup_contact' not in st.session_state:
+        st.session_state.sup_contact = ""
+
+    def add_supplier(name,age, contact):
+        responce=requests.post(f'http://127.0.0.1:8000/supplier/create?name={name}&age={age}&contact={contact}')
+        return responce.json()
+    st.write("ADD SUPPLIER")
+    st.session_state.sup_name = st.text_input("SUPPLIER NAME", value=st.session_state.sup_name, placeholder="Enter name here")
+    st.session_state.sup_age = st.text_input("SUPPLIER AGE", value=st.session_state.sup_age, placeholder="Enter age here")
+    st.session_state.sup_contact = st.text_input("SUPPLIER CONTACT", value=st.session_state.sup_contact, placeholder="Enter contact here")
+
+    is_clicked=st.button("ADD",use_container_width=True)
+    if is_clicked:
+        if st.session_state.sup_name and st.session_state.sup_age and st.session_state.sup_contact:
+            sup_added=add_supplier(st.session_state.sup_name,st.session_state.sup_age,st.session_state.sup_contact)
+            if sup_added !="This person already exsist":
+                st.write(f"name = {sup_added[0]["supplier_name"]}..\n..age = {sup_added[0]["supplier_age"]}..\n..contact={sup_added[0]["contact_info"]} \nis added")
+            else:
+                st.write(sup_added)
+    if st.button("Back to Home",type="primary"):
+        st.session_state.sup_name = ""
+        st.session_state.sup_age= ""
+        st.session_state.sup_contact = ""
+        navigate("home")
+        st.rerun()
+    
