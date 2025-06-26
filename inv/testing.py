@@ -1,29 +1,38 @@
-
 import streamlit as st
 import requests
-
-
-
-
-
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
-# Navigation buttons
+
 def navigate(page_name):
     st.session_state.page = page_name
     st.rerun()
 
-# Home page
+
 if st.session_state.page == "home":
     st.title(" Home Page")
-    if st.button("Go to Add Page"):
-        navigate("add")
-    if st.button("Go to Show Page"):
-        navigate("show")
+    if st.button("Go to supplier Page"):
+        navigate("supplier_page")
+    if st.button("Go to category Page"):
+        navigate("category_page")
 
-#show page
-elif st.session_state.page=="show":
+
+
+
+
+# -----------------------------supplier-------------------------------------------------------------------------------
+
+if st.session_state.page=="supplier_page":
+    st.title("SUPPLIER PAGE")
+    if st.button("SHOW SUPPLIER DETAILES"):
+        navigate("show_supplier")
+    if st.button("ADD SUPPLIER"):
+        navigate("add_supplier")
+    if st.button("go to home",key="supplier"):
+        navigate("home")
+
+#  ---show page supplier ----------------------
+if st.session_state.page=="show_supplier":
 
     def show_supplier():
         response = requests.post('http://127.0.0.1:8000/supplier')
@@ -69,31 +78,31 @@ elif st.session_state.page=="show":
                 upname=st.text_input("updated name",placeholder="enter updated age")
                 upage=st.text_input("updated age",placeholder="enter updated age")
                 upcontact=st.text_input("updated contact",placeholder="enter updated contactt")
-                if upage and upcontact and upname and st.button("update "):
-                    updateresponce=requests.put(f"http://127.0.0.1:8000/supplier/update?name={name}&uname={upname}&age={upage}&contact={upage}")
-                    st.write(updateresponce.json())
-                else:
-                    st.write("check inputs")
+                if st.button("update",key="supplier"):
+                    if upage and upcontact and upname:
+                        updateresponce=requests.put(f"http://127.0.0.1:8000/supplier/update?name={name}&uname={upname}&age={upage}&contact={upage}")
+                        st.write(updateresponce.json())
+                    else:
+                        st.write("check inputs")
+            if action=="delete":
+                delresponce=requests.delete(f"http://127.0.0.1:8000/supplier?name={name}")
+                st.write(delresponce.json(),"deleted sucessfully")
+                del st.session_state['action']
+                navigate("show_supplier")
             st.success(f"{action.capitalize()} button clicked for {name}")
 
     if st.button("Refresh"):
-        # Clear session state
         if "show_clicked" in st.session_state:
             st.session_state.show_clicked=False
         if "action"in st.session_state:
             del st.session_state['action']
         st.rerun()
-
-
-
-                
-
-    if st.button("GO to Home page"):
-        navigate("home")
+    if st.button("Back",key="show_supplier",type="primary"):
+        navigate("supplier_page")
     
 
-# Add page
-elif st.session_state.page == "add":
+# Add page supplier-----------
+if st.session_state.page == "add_supplier":
     if 'sup_name' not in st.session_state:
         st.session_state.sup_name = ""
     if 'sup_age' not in st.session_state:
@@ -117,10 +126,26 @@ elif st.session_state.page == "add":
                 st.write(f"name = {sup_added[0]["supplier_name"]}..\n..age = {sup_added[0]["supplier_age"]}..\n..contact={sup_added[0]["contact_info"]} \nis added")
             else:
                 st.write(sup_added)
-    if st.button("Back to Home",type="primary"):
+    if st.button("Back",key="add_supplier",type="primary"):
         st.session_state.sup_name = ""
         st.session_state.sup_age= ""
         st.session_state.sup_contact = ""
-        navigate("home")
-        st.rerun()
+        navigate("supplier_page")
     
+
+
+
+
+
+
+
+
+#--------------------------category-------------
+
+if st.session_state.page=="category_page":
+    st.write("category here")
+
+
+
+
+

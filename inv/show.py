@@ -88,4 +88,17 @@ if st.session_state.show_clicked:
     # Handle button actions
     if 'action' in st.session_state:
         action, name = st.session_state['action'].split(":")
+        if action == "update":
+            upname=st.text_input("updated name",placeholder="enter updated age")
+            upage=st.text_input("updated age",placeholder="enter updated age")
+            upcontact=st.text_input("updated contact",placeholder="enter updated contactt")
+            if st.button("update "):
+                updateresponce=requests.put(f"http://127.0.0.1:8000/supplier/update?name={name}&uname={upname}&age={upage}&contact={upage}")
+                st.write(updateresponce.json())
         st.success(f"{action.capitalize()} button clicked for {name}")
+
+if st.button("Refresh"):
+    # Clear session state
+    st.session_state.show_clicked=False
+    del st.session_state['action']
+    st.rerun()
