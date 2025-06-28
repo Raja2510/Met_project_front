@@ -1,29 +1,38 @@
-
 import streamlit as st
 import requests
-
-
-
-
-
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
-# Navigation buttons
+
 def navigate(page_name):
     st.session_state.page = page_name
     st.rerun()
 
-# Home page
+
 if st.session_state.page == "home":
     st.title(" Home Page")
-    if st.button("Go to Add Page"):
-        navigate("add")
-    if st.button("Go to Show Page"):
-        navigate("show")
+    if st.button("Go to category Page",use_container_width=True,type="primary"):
+        navigate("category_page")
+    if st.button("Go to supplier Page",use_container_width=True,type="primary"):
+        navigate("supplier_page")
 
-#show page
-elif st.session_state.page=="show":
+
+
+
+
+# -----------------------------supplier-------------------------------------------------------------------------------
+
+if st.session_state.page=="supplier_page":
+    st.title("SUPPLIER PAGE")
+    if st.button("SHOW SUPPLIER DETAILES",use_container_width=True):
+        navigate("show_supplier")
+    if st.button("ADD SUPPLIER",use_container_width=True):
+        navigate("add_supplier")
+    if st.button("go to home",key="supplier",use_container_width=True,type="primary"):
+        navigate("home")
+
+#  ---show page supplier ----------------------
+if st.session_state.page=="show_supplier":
 
     def show_supplier():
         response = requests.post('http://127.0.0.1:8000/supplier')
@@ -69,31 +78,31 @@ elif st.session_state.page=="show":
                 upname=st.text_input("updated name",placeholder="enter updated age")
                 upage=st.text_input("updated age",placeholder="enter updated age")
                 upcontact=st.text_input("updated contact",placeholder="enter updated contactt")
-                if upage and upcontact and upname and st.button("update "):
-                    updateresponce=requests.put(f"http://127.0.0.1:8000/supplier/update?name={name}&uname={upname}&age={upage}&contact={upage}")
-                    st.write(updateresponce.json())
-                else:
-                    st.write("check inputs")
+                if st.button("update",key="supplier"):
+                    if upage and upcontact and upname:
+                        updateresponce=requests.put(f"http://127.0.0.1:8000/supplier/update?name={name}&uname={upname}&age={upage}&contact={upage}")
+                        st.write(updateresponce.json())
+                    else:
+                        st.write("check inputs")
+            if action=="delete":
+                delresponce=requests.delete(f"http://127.0.0.1:8000/supplier?name={name}")
+                st.write(delresponce.json(),"deleted sucessfully")
+                del st.session_state['action']
+                navigate("show_supplier")
             st.success(f"{action.capitalize()} button clicked for {name}")
 
     if st.button("Refresh"):
-        # Clear session state
         if "show_clicked" in st.session_state:
             st.session_state.show_clicked=False
         if "action"in st.session_state:
             del st.session_state['action']
         st.rerun()
-
-
-
-                
-
-    if st.button("GO to Home page"):
-        navigate("home")
+    if st.button("Back",key="show_supplier",type="primary"):
+        navigate("supplier_page")
     
 
-# Add page
-elif st.session_state.page == "add":
+# Add page supplier-----------
+if st.session_state.page == "add_supplier":
     if 'sup_name' not in st.session_state:
         st.session_state.sup_name = ""
     if 'sup_age' not in st.session_state:
@@ -117,10 +126,48 @@ elif st.session_state.page == "add":
                 st.write(f"name = {sup_added[0]["supplier_name"]}..\n..age = {sup_added[0]["supplier_age"]}..\n..contact={sup_added[0]["contact_info"]} \nis added")
             else:
                 st.write(sup_added)
-    if st.button("Back to Home",type="primary"):
+    if st.button("Back",key="add_supplier",type="primary"):
         st.session_state.sup_name = ""
         st.session_state.sup_age= ""
         st.session_state.sup_contact = ""
-        navigate("home")
-        st.rerun()
+        navigate("supplier_page")
     
+
+
+
+
+
+
+
+
+#--------------------------category-------------
+
+if st.session_state.page=="category_page":
+    st.write("category here")
+    if st.button("add category",use_container_width=True):
+        navigate("category_add")
+    if st.button("show category",use_container_width=True):
+        navigate("category_show")
+    if st.button("go to home",key="category_home"):
+        navigate("home")
+
+if st.session_state.page=="category_add":
+    st.title('Add Category')
+    new_category_name=st.text_input("ENTER NEW CATEGORY",placeholder='enter here')
+    new_category_desc=st.text_input("ENTER ITS DESCREPTION",placeholder='enter here')
+    if st.button("ADD",key="add category"):
+        if new_category_desc and new_category_name:
+            responce=requests.post(f"http://127.0.0.1:8000/category/create?name={new_category_name}&desc={new_category_desc}")
+            if responce.status_code==200:
+                st.write(responce.json()[0])
+    if st.button("Go back",key="categoty_add",use_container_width=True):
+        navigate("category_page")
+if st.session_state.page=="category_show":
+    st.write("current  categorirs")
+    if st.button("show",key="show_category",use_container_width=True):
+        category_data=requests.get("http://127.0.0.1:8000/category")
+        for i in category_data.json()["data"]:
+            st.write(i["category_name"])
+            # st.write(i["descreption"])
+    if st.button("go back",key="category show",use_container_width=True):
+        navigate("category_page")

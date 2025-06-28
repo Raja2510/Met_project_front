@@ -11,10 +11,10 @@ def navigate(page_name):
 
 if st.session_state.page == "home":
     st.title(" Home Page")
-    if st.button("Go to supplier Page"):
-        navigate("supplier_page")
-    if st.button("Go to category Page"):
+    if st.button("Go to category Page",use_container_width=True,type="primary"):
         navigate("category_page")
+    if st.button("Go to supplier Page",use_container_width=True,type="primary"):
+        navigate("supplier_page")
 
 
 
@@ -24,11 +24,11 @@ if st.session_state.page == "home":
 
 if st.session_state.page=="supplier_page":
     st.title("SUPPLIER PAGE")
-    if st.button("SHOW SUPPLIER DETAILES"):
+    if st.button("SHOW SUPPLIER DETAILES",use_container_width=True):
         navigate("show_supplier")
-    if st.button("ADD SUPPLIER"):
+    if st.button("ADD SUPPLIER",use_container_width=True):
         navigate("add_supplier")
-    if st.button("go to home",key="supplier"):
+    if st.button("go to home",key="supplier",use_container_width=True,type="primary"):
         navigate("home")
 
 #  ---show page supplier ----------------------
@@ -144,8 +144,21 @@ if st.session_state.page == "add_supplier":
 
 if st.session_state.page=="category_page":
     st.write("category here")
+    if st.button("add category",use_container_width=True):
+        navigate("category_add")
+    if st.button("go to home",key="category_home"):
+        navigate("home")
+#--------------category Add page
+if st.session_state.page=="category_add":
+    st.title('Add Category')
+    new_category_name=st.text_input("ENTER NEW CATEGORY",placeholder='enter here')
+    new_category_desc=st.text_input("ENTER ITS DESCREPTION",placeholder='enter here')
+    if st.button("ADD",key="add category"):
+        if new_category_desc and new_category_name:
+            responce=requests.post(f"http://127.0.0.1:8000/category/create?name={new_category_name}&desc={new_category_desc}")
+            if responce.status_code==200:
+                st.write(responce.json()[0])
 
-
-
-
+    if st.button("Go back",key="categoty_add",use_container_width=True):
+        navigate("category_page")
 
